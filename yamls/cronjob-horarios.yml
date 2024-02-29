@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cronjob-horarios
+  namespace: casafeudal
+spec:
+  schedule: "0 * * * *" #Indica la frecuencia con la que se ejecutara, en este caso es cada hora
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: horario
+            image: casafeudal/horas:1.2.1
+            ports:
+            - containerPort: 5000       #Puerto con el que se conectara con el servicio
+            livenessProbe:      #Realiza la prueba de vida
+              httpGet:
+                  path: /
+                  port: 5000
+              initialDelaySeconds: 3
+              periodSeconds: 3
+            command: ["python", "-c", "app.py"]  #Ejecuta el comando para lanzar la aplicacion y ver si esta levantazda
+
+            volumeMounts:
+              - name: secreto-horario
+                mountPath: /secreto #Montamos un volumen para guardar las variables del secreto
+            envFrom:       
+            - secretRef:
+              name: secreto-horario  #Invocamos al secreto creado antes
+
+          initContainers: #Contenedor que se va a ejecutar primero
+          - name: horario
+            image: alpine:latest #Utilizamos Alpine Linux para el initContainer
+            command: ['sh', '-c', 'curl -o /datos-file https://www.generochico.com/horariosjuergasdelviejo.csv'] #Descargamos el fichero "csv"
+            volumeMounts:
+            - name: volumen-data
+              mountPath: /datos #Indicamos la ruta donde guardaremos el "csv"
+
+          volumes:
+            - name: volumen-data #Montamos un volumen para guardar el fichero "csv" desgargado antes emptyDir:{}
+
+          restarPolicy: OnFailure
+  strategy: #indicamos la regla de actualizacion
+    rollingUpdate:
+      #Indica el numero maximo de pords que se ejecutarán simultáneamente en la actualización
+      maxSurge: 5 
+
+      #indica el numero máximo de pods no disponibles durante la actualización
+      maxUnavailable: 5

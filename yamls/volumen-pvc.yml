@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: local
+  name: volumen-pv-claim
+spec:
+  storageClassName: vol-trayectos #Referencia para enlazar con el PersistentVolume
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100M

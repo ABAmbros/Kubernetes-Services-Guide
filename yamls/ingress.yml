@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: regatitas-ingress
+spec:
+  rules:
+  - host: www.regatitas.com
+    http:
+      paths:
+      - path: /horarios
+        backend:
+          service:
+            name: serv-horario
+            port:
+              number: 5050     #Puerto por que sale fuera del cluster el enpoint /horarios
+
+      - path: /trayectos
+        backend:
+          service:
+            name: serv-trayectos
+            port:
+              number: 5050     #Puerto por que sale fuera del cluster el enpoint /trayectos
+
+      - path: /comilonas
+        backend:
+          service:
+            name: serv-comilonas
+            port:
+              number: 5055      #Puerto por que sale fuera del cluster el enpoint /comilonas

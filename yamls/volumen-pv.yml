@@ -1,0 +1,14 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: volumen-pv
+  labels:
+    type: local
+spec:
+  storageClassName: vol-trayectos #Nombre para el Persistent Volume Claim
+  capacity:
+    storage: 100M
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/app/trayectos"

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deply-comilonas
+  namespace: casafeudal
+spec:
+  selector:
+    replicas: 4
+    strategy:
+      rollingUpdate:
+        #Indica el numero maximo de pords que se ejecutarán simultáneamente en la actualización
+        maxSurge: 5 
+        #Indica el numero máximo de pods no disponibles durante la actualización
+        maxUnavailable: 5 
+
+    matchLabels:
+      app: comilonas
+  template:
+    metadata:
+      labels:
+        app: comilonas
+    spec:
+      volumes:
+      - name: volumen-dir
+        emptyDir: {}
+
+      containers:
+      - name: comilonas2
+        image: casafeudal/comilonas:2.0
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+          - name: volumen-dir
+            mountPath: /comilonas/
+      volumeMounts:
+          - name: volumen-poisons
+            mountPath: /app/poisons
+      envFrom:       
+        - configMapRef:
+          name: comilonas-configmap
+
+        - name: cocina
+          image: casafeudal/cocina:1.0
+          ports:
+        - containerPort: 5000
+          volumeMounts:
+          - name: volumen-dir
+            mountPath: /comilonas/
+
+            volumeMounts:
+          - name: volumen-poisons
+            mountPath: /app/poisons
+          envFrom:       
+        - configMapRef:
+          name: comilonas-configmap
+
+      restarPolicy: OnFailure
+
+    volumes:
+          - name: volumen-poisons
+            persistentVolumeClaim:
+              claimName: volumens-pv-claim

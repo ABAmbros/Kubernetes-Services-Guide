@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: serv-horario #Este servicio lo usara el enpoint "/horarios"
+  namespace: casafeudal
+spec:
+  type: LoadBalancer
+  selector:
+    app: horario
+  ports:
+    - protocol: TCP
+      port: 5045      #Puerto por que sale fuera del cluster
+      targetPort: 5000      #Puerto por el que se conecta con el contenedor
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: serv-trayectos      #Este servicio lo usara el enpoint "/trayectos"
+  namespace: casafeudal
+spec:
+  type: LoadBalancer
+  selector:
+    app: trayecto
+  ports:
+    - protocol: TCP
+      port: 5050      #Puerto por que sale fuera del cluster
+      targetPort: 5000      #Puerto por el que se conecta con el contenedor
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: serv-comilonas #Este servicio lo usara el enpoint "/comilonas"
+  namespace: casafeudal
+spec:
+  type: LoadBalancer
+  selector:
+    app: trayecto
+  ports:
+    - protocol: TCP
+      port: 5055      #Puerto por que sale fuera del cluster
+      targetPort: 5000      #Puerto por el que se conecta con el contenedor

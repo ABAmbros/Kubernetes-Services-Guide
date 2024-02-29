@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deply-trayectos
+  namespace: casafeudal
+spec:
+  selector:
+    replicas: 4
+    strategy:
+      rollingUpdate:
+        #Indica el numero maximo de pords que se ejecutarán simultáneamente en la actualización
+        maxSurge: 5
+        #Indica el numero máximo de pods no disponibles durante la actualización
+        maxUnavailable: 5
+
+    matchLabels:
+      app: trayecto
+  template:
+    metadata:
+      labels:
+        app: trayecto
+    spec:
+      containers:
+      - name: trayecto
+        image: casafeudal/avistamientos:1.0
+        ports:
+        - containerPort: 5000
+
+      initContainers:
+      - name: init-copiador
+        image: alpine:latest  # Utilizamos Alpine Linux para el initContainer
+        command: ["sh", "-c", "kubectl cp trayecto:/cuando/un/pod/senosva/algosemuereenelservicio.txt /app/trayectos/algosemuereenelservicio.txt"]     #Si muere el pod copia el fichero y lo guarda en /app/trayectos
+
+        volumeMounts:
+          - name: volumen-trayecto
+            mountPath: /app/trayectos
+
+      restarPolicy: OnFailure
+
+    volumes:
+        - name: volumen-trayecto
+          persistentVolumeClaim:
+            claimName: volumen-pv-claim
